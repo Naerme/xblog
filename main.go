@@ -1,7 +1,17 @@
 package main
 
-import "blogx_server/core"
+import (
+	"blogx_server/core"
+	"blogx_server/flags"
+	"blogx_server/global"
+)
 
 func main() {
-	core.Readfunc()
+
+	flags.Parse() //参数解析
+	//fmt.Println(flags.FlagOptions)
+	global.Conifg = core.ReadConf()
+	core.InitLogrus()
+	global.DB = core.InitDB()
+
 }
