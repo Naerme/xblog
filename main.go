@@ -4,6 +4,7 @@ import (
 	"blogx_server/core"
 	"blogx_server/flags"
 	"blogx_server/global"
+	"blogx_server/router"
 )
 
 func main() {
@@ -13,5 +14,9 @@ func main() {
 	global.Conifg = core.ReadConf()
 	core.InitLogrus()
 	global.DB = core.InitDB()
+	global.Redis = core.InitRedis()
+
+	flags.Run()
+	router.Run()
 
 }

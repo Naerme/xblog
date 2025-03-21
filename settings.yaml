@@ -1,13 +1,14 @@
 system:
-  ip:
-  port: 8080
+  ip: ""
+  port: "8080"
+  gin_mode: release
   env: dev
 log:
   app: blogx_server
   dir: logs
 db:
   user: root
-  password: 123456
+  password: "123456"
   host: 127.0.0.1
   port: 3306
   db: blogx
@@ -15,13 +16,84 @@ db:
   source: mysql
 db1:
   user: root
-  password: 123456
+  password: "123456"
   host: 127.0.0.1
   port: 3306
   db: blogx
   debug: false
   source: mysql
-
-
-
-
+jwt:
+  expire: 3
+  secret: xxx
+  issuer: hjy
+redis:
+  addr: 127.0.0.1:6379
+  password: "1234"
+  db: 0
+site:
+  siteInfo:
+    title: 小演博客1
+    logo: ""
+    beian: ""
+    mode: 1
+  project:
+    title: 演演知道
+    icon: /xxx.png
+    webPath: uploads/index.html
+  seo:
+    keywords: "1"
+    description: "1"
+  about:
+    siteDate: ""
+    qq: ""
+    wechat: ""
+    gitee: ""
+    bilibili: ""
+    github: ""
+  login:
+    qqLogin: false
+    usernamePwdLogin: false
+    emailLogin: true
+    captcha: true
+  indexRight:
+    list: []
+  article:
+    noExamine: true
+    commentLine: 0
+email:
+  domain: smtp.qq.com
+  port: 587
+  sendEmail: 3027373171@qq.com
+  authCode: xfslyhcacmgndgah
+  sendNickname: yanyan
+  ssl: true
+  tls: false
+qq:
+  appID: "1234"
+  appKey: ""
+  redirect: http://xxxxxx
+qiNiu:
+  enable: true
+  accessKey: OysF3Hj6R39-LCDZS9cyy2vRgXEl4e1-1Pv5w-EI
+  secretKey: 2n78I3G_5AlldZWgM8nE7U_rfsi5RjrC0Bz9ZT1N
+  bucket: pity
+  uri: http://st7hmu9be.hn-bkt.clouddn.com
+  region: z2
+  prefix: blogx
+  size: 3
+  expiry: 60
+ai:
+  enable: false
+  secretKey: ddasjhdshfdsnfdsjfioeos384u3289rh89r8932r893
+  nickname: 小演
+  avatar: /xxx/xxx
+  abstract: ""
+upload:
+  size: 3
+  whiteList:
+  - jpg
+  - jpeg
+  - png
+  - webp
+  - gif
+  uploadDir: images001
