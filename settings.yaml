@@ -23,7 +23,7 @@ db1:
   debug: false
   source: mysql
 jwt:
-  expire: 3
+  expire: 24
   secret: xxx
   issuer: hjy
 redis:
@@ -52,9 +52,9 @@ site:
     github: ""
   login:
     qqLogin: false
-    usernamePwdLogin: false
-    emailLogin: true
-    captcha: true
+    usernamePwdLogin: true
+    emailLogin: false
+    captcha: false
   indexRight:
     list: []
   article:

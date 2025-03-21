@@ -5,7 +5,6 @@ import (
 	"blogx_server/global"
 	"blogx_server/models"
 	"blogx_server/models/enum"
-	"blogx_server/utils/email_store"
 	"blogx_server/utils/jwts"
 	"blogx_server/utils/pwd"
 	"fmt"
@@ -28,27 +27,27 @@ func (UserApi) RegisterEmailView(c *gin.Context) {
 		return
 	}
 
-	fmt.Println(cr, cr.EmailID)
-	value, ok := global.EmailVerifyStore.Load(cr.EmailID)
-
-	fmt.Println(ok)
-	fmt.Println(value)
-	if !ok {
-		res.FailWithMsg("邮箱验证失败1", c)
-		return
-	}
-	fmt.Println("2")
-	info, ok := value.(email_store.EmailStoreInfo)
-	if !ok {
-		res.FailWithMsg("邮箱验证失败2", c)
-		return
-	}
-	if info.Code != cr.EmailCode {
-		global.EmailVerifyStore.Delete(cr.EmailID)
-		res.FailWithMsg("邮箱验证失败3", c)
-		return
-	}
-	global.EmailVerifyStore.Delete(cr.EmailID)
+	//fmt.Println(cr, cr.EmailID)
+	//value, ok := global.EmailVerifyStore.Load(cr.EmailID)
+	//
+	//fmt.Println(ok)
+	//fmt.Println(value)
+	//if !ok {
+	//	res.FailWithMsg("邮箱验证失败1", c)
+	//	return
+	//}
+	//fmt.Println("2")
+	//info, ok := value.(email_store.EmailStoreInfo)
+	//if !ok {
+	//	res.FailWithMsg("邮箱验证失败2", c)
+	//	return
+	//}
+	//if info.Code != cr.EmailCode {
+	//	global.EmailVerifyStore.Delete(cr.EmailID)
+	//	res.FailWithMsg("邮箱验证失败3", c)
+	//	return
+	//}
+	//global.EmailVerifyStore.Delete(cr.EmailID)
 
 	if !global.Conifg.Site.Login.EmailLogin {
 		res.FailWithMsg("站点未启用邮箱注册", c)
