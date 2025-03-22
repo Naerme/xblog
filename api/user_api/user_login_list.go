@@ -16,14 +16,14 @@ type UserLoginListRequest struct {
 	UserID    uint   `form:"userID"`
 	Ip        string `form:"ip"`
 	Addr      string `form:"addr"`
-	StartTime int64  `form:"startTime"`
-	EndTime   int64  `form:"endTime"`
+	StartTime string `form:"startTime"`
+	EndTime   string `form:"endTime"`
 	Type      int8   `form:"type" binding:"required,oneof=1 2"` //1用户2管理员
 }
 type UserLoginListResponse struct {
 	models.UserLoginModel
-	UserNickname string `json:"userNickname"`
-	UserAvatar   string `json:"userAvatar"`
+	UserNickname string `json:"userNickname,omitempty"`
+	UserAvatar   string `json:"userAvatar,omitempty"`
 }
 
 func (UserApi) UserLoginListView(c *gin.Context) {
@@ -41,13 +41,21 @@ func (UserApi) UserLoginListView(c *gin.Context) {
 		fmt.Println("执行type=1， claims.Role:", claims.Role, "cr.UserID:", cr.UserID)
 	}
 	var query = global.DB.Where("")
-	if cr.StartTime != 0 {
-		t := time.Unix(cr.StartTime, 0)
-		query.Where("created_at > ?", t.Format("2006-01-02 15:04:05"))
+	if cr.StartTime != "" {
+		_, err := time.Parse("2006-01-02 15:04:05", cr.StartTime)
+		if err != nil {
+			res.FailWithMsg("开始时间格式错误", c)
+			return
+		}
+		query.Where("created_at >= ?", cr.StartTime)
 	}
-	if cr.EndTime != 0 {
-		t := time.Unix(cr.EndTime, 0)
-		query.Where("created_at < ?", t.Format("2006-01-02 15:04:05"))
+	if cr.EndTime != "" {
+		_, err := time.Parse("2006-01-02 15:04:05", cr.EndTime)
+		if err != nil {
+			res.FailWithMsg("结束间格式错误", c)
+			return
+		}
+		query.Where("created_at <= ?", cr.EndTime)
 	}
 	var preloads []string
 	if cr.Type == 2 && claims.Role == 2 {
