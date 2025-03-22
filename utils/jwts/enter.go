@@ -54,7 +54,7 @@ func ParseToken(tokenString string) (*MyClaims, error) {
 			return nil, errors.New("token无效")
 		}
 		if strings.Contains(err.Error(), "token contains an invalid") {
-			fmt.Println("token:", token)
+			//fmt.Println("token:", token)
 			return nil, errors.New("token非法")
 		}
 		fmt.Println(err, 1)

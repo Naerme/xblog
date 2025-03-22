@@ -13,6 +13,7 @@ func UserRouter(r *gin.RouterGroup) {
 	r.POST("user/email", middleware.EmailVerifyMiddleware, app.RegisterEmailView)
 	r.POST("user/login", middleware.CaptchaMiddleware, app.PwdLoginApi)
 	r.GET("user/detail", middleware.AuthMiddleware, app.UserDetailView)
+	r.GET("user/login", middleware.AuthMiddleware, app.UserLoginListView)
 	r.GET("user/base", app.UserBaseInfoView)
 
 }
