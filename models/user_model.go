@@ -12,16 +12,19 @@ type UserModel struct {
 	Avatar         string                  `gorm:"size:256" json:"avatar"`
 	Abstract       string                  `gorm:"size:256" json:"abstract"`
 	RegisterSource enum.RegisterSourceType `json:"registerSource"`
-	CodeAge        int                     `json:"codeAge"`
 	Password       string                  `gorm:"size:64" json:"-"`
 	Email          string                  `gorm:"size:256" json:"email"`
 	OpenID         string                  `gorm:"size:64" json:"openID"` //第三方登录的唯一ID
 	Role           enum.RoleType           `json:"role"`                  //角色1admin2user3visitor
+	UserConfModel  *UserConfModel          `gorm:"foreignKey:UserID" json:"-"`
+	//UserConfModel  *UserConfModel          `gorm:"foreignKey:UserID" json:"-"`
+	//CodeAge        int                     `json:"codeAge"`
 	//LikeTags       []string `gorm:"type:longtext;serializer:json" json:"likeTags"` //兴趣标签
 }
 
 type UserConfModel struct {
 	UserID             uint       `gorm:"unique" json:"userID"`
+	UserModel          UserModel  `gorm:"foreignKey:UserID" json:"-"`
 	LikeTags           []string   `gorm:"type:longtext;serializer:json" json:"likeTags"`
 	UpdateUsernameDate *time.Time `json:"updateUsernameDate"` // 上次修改用户名的时间
 	OpenCollect        bool       `json:"openCollect"`        // 公开我的收藏

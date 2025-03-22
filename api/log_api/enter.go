@@ -64,7 +64,7 @@ func (LogApi) LogListView(c *gin.Context) {
 	}
 
 	res.OkWithList(_list, int(count), c)
-
+	return
 }
 
 func (LogApi) LogReadView(c *gin.Context) {

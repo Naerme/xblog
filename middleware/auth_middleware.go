@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AuthmMiddleware(c *gin.Context) {
+func AuthMiddleware(c *gin.Context) {
 	claims, err := jwts.ParseTokenByGin(c)
 	if err != nil {
 		res.FailWithError(err, c)
