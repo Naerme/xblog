@@ -8,7 +8,6 @@ import (
 	"blogx_server/utils/jwts"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"math"
 	"time"
 )
 
@@ -34,8 +33,7 @@ func (UserApi) UserDetailView(c *gin.Context) {
 		res.FailWithMsg("用户不存在", c)
 		return
 	}
-	sub := time.Now().Sub(user.CreatedAt)
-	codeAge := int(math.Ceil(sub.Hours() / 24 / 365))
+
 	var data = UserDetailResponse{
 		ID:             user.ID,
 		CreatedAt:      user.CreatedAt,
@@ -44,7 +42,7 @@ func (UserApi) UserDetailView(c *gin.Context) {
 		Avatar:         user.Avatar,
 		Abstract:       user.Abstract,
 		RegisterSource: user.RegisterSource,
-		CodeAge:        codeAge,
+		CodeAge:        user.CodeAge(),
 	}
 	if user.UserConfModel != nil {
 		data.UserConfModel = *user.UserConfModel

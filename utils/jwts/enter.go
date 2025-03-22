@@ -39,8 +39,10 @@ func GetToken(claims Claims) (string, error) {
 // parse token
 func ParseToken(tokenString string) (*MyClaims, error) {
 	if tokenString == "" {
+		fmt.Println("parestoken")
 		return nil, errors.New("请登录")
 	}
+	fmt.Println(tokenString)
 	token, err := jwt.ParseWithClaims(tokenString, &MyClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(global.Conifg.Jwt.Secret), nil
 	})
@@ -52,6 +54,7 @@ func ParseToken(tokenString string) (*MyClaims, error) {
 			return nil, errors.New("token无效")
 		}
 		if strings.Contains(err.Error(), "token contains an invalid") {
+			fmt.Println("token:", token)
 			return nil, errors.New("token非法")
 		}
 		fmt.Println(err, 1)

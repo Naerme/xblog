@@ -6,6 +6,7 @@ import (
 	"blogx_server/models"
 	"blogx_server/utils/jwts"
 	"blogx_server/utils/pwd"
+	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -41,5 +42,6 @@ func (UserApi) PwdLoginApi(c *gin.Context) {
 		Role:     user.Role,
 		Username: user.Username,
 	})
+	fmt.Println(token)
 	res.OkWithData(token, c)
 }

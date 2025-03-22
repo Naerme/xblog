@@ -2,11 +2,8 @@ package redis_jwt
 
 import (
 	"blogx_server/global"
-	"blogx_server/utils/jwts"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
-	"time"
 )
 
 type BlackType int8
@@ -47,22 +44,22 @@ func ParseBlackType(val string) BlackType {
 	return UserBlackType
 }
 
-func TokenBlack(token string, value BlackType) {
-	key := fmt.Sprintf("token_black_%s", token)
-
-	claims, err := jwts.ParseToken(token)
-	if err != nil || claims == nil {
-		logrus.Errorf("Token解析失败%v", err)
-		return
-	}
-	second := claims.ExpiresAt - time.Now().Unix()
-	_, err = global.Redis.Set(key, value.String(), time.Duration(second)*time.Second).Result()
-	if err != nil {
-		logrus.Errorf("redis添加黑名单失败%s", err)
-		return
-	}
-
-}
+//func TokenBlack(token string, value BlackType) {
+//	key := fmt.Sprintf("token_black_%s", token)
+//
+//	claims, err := jwts.ParseToken(token)
+//	if err != nil || claims == nil {
+//		logrus.Errorf("Token解析失败%v", err)
+//		return
+//	}
+//	second := claims.ExpiresAt - time.Now().Unix()
+//	_, err = global.Redis.Set(key, value.String(), time.Duration(second)*time.Second).Result()
+//	if err != nil {
+//		logrus.Errorf("redis添加黑名单失败%s", err)
+//		return
+//	}
+//
+//}
 
 func HasTokenBlack(token string) (blk BlackType, ok bool) {
 	key := fmt.Sprintf("token_black_%s", token)

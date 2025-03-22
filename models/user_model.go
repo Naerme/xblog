@@ -2,6 +2,7 @@ package models
 
 import (
 	"blogx_server/models/enum"
+	"math"
 	"time"
 )
 
@@ -17,6 +18,8 @@ type UserModel struct {
 	OpenID         string                  `gorm:"size:64" json:"openID"` //第三方登录的唯一ID
 	Role           enum.RoleType           `json:"role"`                  //角色1admin2user3visitor
 	UserConfModel  *UserConfModel          `gorm:"foreignKey:UserID" json:"-"`
+	IP             string                  `json:"ip"`
+	Addr           string                  `json:"addr"`
 	//UserConfModel  *UserConfModel          `gorm:"foreignKey:UserID" json:"-"`
 	//CodeAge        int                     `json:"codeAge"`
 	//LikeTags       []string `gorm:"type:longtext;serializer:json" json:"likeTags"` //兴趣标签
@@ -31,4 +34,9 @@ type UserConfModel struct {
 	OpenFollow         bool       `json:"openFollow"`         // 公开我的关注
 	OpenFans           bool       `json:"openFans"`           // 公开我的粉丝
 	HomeStyleID        uint       `json:"homeStyleID"`        // 主页样式的id
+}
+
+func (u *UserModel) CodeAge() int {
+	sub := time.Now().Sub(u.CreatedAt)
+	return int(math.Ceil(sub.Hours() / 24 / 365))
 }

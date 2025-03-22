@@ -5,6 +5,7 @@ import (
 	"blogx_server/models/enum"
 	"blogx_server/service/redis_service/redis_jwt"
 	"blogx_server/utils/jwts"
+	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -45,6 +46,7 @@ func AdminMiddleware(c *gin.Context) {
 		c.Abort()
 		return
 	}
+	fmt.Println("claims.Role", claims.Role)
 	c.Set("claims", claims)
 	return
 }

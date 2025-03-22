@@ -13,4 +13,8 @@ func LogRouter(rr *gin.RouterGroup) {
 	r.GET("logs/:id", app.LogReadView)
 	r.DELETE("logs", app.LogRemoveView)
 
+	//r.GET("logs", middleware.AdminMiddleware, app.LogListView)
+	//r.GET("logs/:id", middleware.AdminMiddleware, app.LogReadView)
+	//r.DELETE("logs", middleware.AdminMiddleware, app.LogRemoveView)
+
 }
