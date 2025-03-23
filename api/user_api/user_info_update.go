@@ -14,7 +14,7 @@ import (
 
 type UserInfoUpdateRequest struct {
 	Username    *string   `json:"username" s-u:"username"`
-	Nickname    *string   `son:"nickname" s-u:"nickname"`
+	Nickname    *string   `json:"nickname" s-u:"nickname"`
 	Avatar      *string   `json:"avatar" s-u:"avatar"`
 	Abstract    *string   `json:"abstract" s-u:"abstract"`
 	LikeTags    *[]string `json:"likeTags" s-u-c:"like_tags"`
