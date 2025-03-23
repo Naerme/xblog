@@ -39,6 +39,7 @@ func SendEmail(to, subject, text string) (err1 error) {
 	return nil
 }
 
+// 绑定邮箱
 func SendBIndEmailCode(to string, code string) error {
 	em := global.Conifg.Email
 	subject := fmt.Sprintf("【%s】绑定邮箱", em.SendNickname)

@@ -13,7 +13,7 @@ import (
 )
 
 type SendEmailRequest struct {
-	Type  int8   `json:"type" binding:"oneof=1 2"`
+	Type  int8   `json:"type" binding:"oneof=1 2 3"` //1注册2重置密码3绑定邮箱
 	Email string `json:"email" binding:"required"`
 }
 
