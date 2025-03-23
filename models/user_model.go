@@ -2,6 +2,7 @@ package models
 
 import (
 	"blogx_server/models/enum"
+	"gorm.io/gorm"
 	"math"
 	"time"
 )
@@ -26,7 +27,7 @@ type UserModel struct {
 }
 
 type UserConfModel struct {
-	UserID             uint       `gorm:"unique" json:"userID"`
+	UserID             uint       `gorm:"primaryKey;unique" json:"userID"`
 	UserModel          UserModel  `gorm:"foreignKey:UserID" json:"-"`
 	LikeTags           []string   `gorm:"type:longtext;serializer:json" json:"likeTags"`
 	UpdateUsernameDate *time.Time `json:"updateUsernameDate"` // 上次修改用户名的时间
@@ -39,4 +40,7 @@ type UserConfModel struct {
 func (u *UserModel) CodeAge() int {
 	sub := time.Now().Sub(u.CreatedAt)
 	return int(math.Ceil(sub.Hours() / 24 / 365))
+}
+func (u *UserModel) AfterCreate(tx *gorm.DB) error {
+	return tx.Create(&UserConfModel{UserID: u.ID}).Error
 }
