@@ -12,6 +12,7 @@ type Options struct {
 	Version bool
 	Type    string
 	Sub     string
+	Es      bool
 }
 
 var FlagOptions = new(Options)
@@ -22,6 +23,7 @@ func Parse() {
 	flag.BoolVar(&FlagOptions.Version, "v", false, "版本")
 	flag.StringVar(&FlagOptions.Type, "t", "", "类型")
 	flag.StringVar(&FlagOptions.Sub, "s", "", "子类")
+	flag.BoolVar(&FlagOptions.Es, "es", false, "创建索引")
 	flag.Parse()
 
 }
@@ -29,6 +31,10 @@ func Parse() {
 func Run() {
 	if FlagOptions.DB {
 		FlagDB()
+		os.Exit(0)
+	}
+	if FlagOptions.Es {
+		EsIndex()
 		os.Exit(0)
 	}
 	switch FlagOptions.Type {

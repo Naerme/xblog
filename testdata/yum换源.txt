@@ -1,0 +1,45 @@
+创建 /etc/systemd/system/docker.service.d/http-proxy.conf 配置文件
+
+[Service]
+Environment="HTTP_PROXY=http://192.168.100.141:7890"
+Environment="HTTPS_PROXY=http://192.168.100.141:7890"
+
+然后重新加载配置并重启服务:
+systemctl daemon-reload
+systemctl restart docker
+
+然后检查加载的配置:
+systemctl show docker --property Environment
+
+
+[Service]
+Environment="HTTP_PROXY=http://10.42.238.88:7890"
+Environment="HTTPS_PROXY=http://10.42.238.88:7890"
+
+然后重新加载配置并重启服务:
+systemctl daemon-reload
+systemctl restart docker
+
+然后检查加载的配置:
+systemctl show docker --property Environment
+
+192.168.168.128
+
+
+
+db:
+  user: root
+  password: “123456”
+  host: 127.0.0.1
+  port: 3306
+  db: blogx
+  debug: false
+  source: mysql
+db1:
+  user: root
+  password: “123456”
+  host: 127.0.0.1
+  port: 3306
+  db: blogx
+  debug: false
+  source: mysql
