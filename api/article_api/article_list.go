@@ -3,6 +3,10 @@ package article_api
 import (
 	"blogx_server/common"
 	"blogx_server/common/res"
+	"blogx_server/global"
+	"blogx_server/utils/sql"
+	"fmt"
+
 	//"blogx_server/global"
 	"blogx_server/middleware"
 	"blogx_server/models"
@@ -35,18 +39,18 @@ type ArticleListResponse struct {
 func (ArticleApi) ArticleListView(c *gin.Context) {
 	cr := middleware.GetBind[ArticleListRequest](c)
 
-	//var topArticleIDList []uint // [1 2 3] => (1,2,3)
-	//
-	//var orderColumnMap = map[string]bool{
-	//	"look_count desc":    true,
-	//	"digg_count desc":    true,
-	//	"comment_count desc": true,
-	//	"collect_count desc": true,
-	//	"look_count asc":     true,
-	//	"digg_count asc":     true,
-	//	"comment_count asc":  true,
-	//	"collect_count asc":  true,
-	//}
+	var topArticleIDList []uint // [1 2 3] => (1,2,3)
+
+	var orderColumnMap = map[string]bool{
+		"look_count desc":    true,
+		"digg_count desc":    true,
+		"comment_count desc": true,
+		"collect_count desc": true,
+		"look_count asc":     true,
+		"digg_count asc":     true,
+		"comment_count asc":  true,
+		"collect_count asc":  true,
+	}
 
 	switch cr.Type {
 	case 1:
@@ -60,7 +64,7 @@ func (ArticleApi) ArticleListView(c *gin.Context) {
 			return
 		}
 		cr.Status = 0
-		//cr.Order = ""
+		cr.Order = ""
 		//if cr.CollectID != 0 {
 		//	// 如果传了收藏夹id，那要看看这个人
 		//	if cr.UserID == 0 {
@@ -115,16 +119,31 @@ func (ArticleApi) ArticleListView(c *gin.Context) {
 	//	query.Where("id in ?", articleIDList)
 	//}
 	//
-	//if cr.Order != "" {
-	//	_, ok := orderColumnMap[cr.Order]
-	//	if !ok {
-	//		res.FailWithMsg("不支持的排序方式", c)
-	//		return
-	//	}
-	//}
-	//
-	//var userTopMap = map[uint]bool{}
-	//var adminTopMap = map[uint]bool{}
+	if cr.Order != "" {
+		_, ok := orderColumnMap[cr.Order]
+		if !ok {
+			res.FailWithMsg("不支持的排序方式", c)
+			return
+		}
+	}
+
+	var userTopMap = map[uint]bool{}
+	var adminTopMap = map[uint]bool{}
+
+	if cr.UserID != 0 {
+		var userTopArticleList []models.UserTopArticleModel
+		global.DB.Preload("UserModel").Order("created_at desc").Find(&userTopArticleList, "user_id = ? ", cr.UserID)
+		for _, i2 := range userTopArticleList {
+			topArticleIDList = append(topArticleIDList, i2.ArticleID)
+			fmt.Println("i2.UserModel.Role", i2.UserModel.Role)
+			if i2.UserModel.Role == enum.AdminRole {
+				adminTopMap[i2.ArticleID] = true
+			}
+
+			userTopMap[i2.ArticleID] = true
+
+		}
+	}
 	//var userTopQuery = global.DB.Where("")
 	//if cr.UserID != 0 {
 	//	userTopQuery.Where("user_id = ?", cr.UserID)
@@ -140,32 +159,32 @@ func (ArticleApi) ArticleListView(c *gin.Context) {
 	//	userTopMap[i2.ArticleID] = true
 	//}
 	//
-	//var options = common.Options{
-	//	Likes:        []string{"title"},
-	//	PageInfo:     cr.PageInfo,
-	//	//DefaultOrder: "created_at desc",
-	//	//Where:        query,
-	//	//Preloads:     []string{"CategoryModel", "UserModel"},
-	//}
-	//if len(topArticleIDList) > 0 {
-	//	options.DefaultOrder = fmt.Sprintf("%s, created_at desc", sql.ConvertSliceOrderSql(topArticleIDList))
-	//}
-	//_list, count, _ := common.ListQuery(models.ArticleModel{
-	//	UserID:     cr.UserID,
-	//	CategoryID: cr.CategoryID,
-	//	Status:     cr.Status,
-	//}, options)
+	var options = common.Options{
+		Likes:        []string{"title"},
+		PageInfo:     cr.PageInfo,
+		DefaultOrder: "created_at desc",
+		//Where:        query,
+		//Preloads:     []string{"CategoryModel", "UserModel"},
+	}
+	if len(topArticleIDList) > 0 {
+		options.DefaultOrder = fmt.Sprintf("%s, created_at desc", sql.ConvertSliceOrderSql(topArticleIDList))
+	}
 	_list, count, _ := common.ListQuery(models.ArticleModel{
 		UserID:     cr.UserID,
 		CategoryID: cr.CategoryID,
 		Status:     cr.Status,
-	}, common.Options{
-		Likes:    []string{"title"},
-		PageInfo: cr.PageInfo,
-		//DefaultOrder: "created_at desc",
-		//Where:        query,
-		//Preloads:     []string{"CategoryModel", "UserModel"},
-	})
+	}, options)
+	//_list, count, _ := common.ListQuery(models.ArticleModel{
+	//	UserID:     cr.UserID,
+	//	CategoryID: cr.CategoryID,
+	//	Status:     cr.Status,
+	//}, common.Options{
+	//	Likes:        []string{"title"},
+	//	PageInfo:     cr.PageInfo,
+	//	DefaultOrder: fmt.Sprintf("%s, created_at desc", sql.ConvertSliceOrderSql(topArticleIDList)),
+	//	//Where:        query,
+	//	//Preloads:     []string{"CategoryModel", "UserModel"},
+	//})
 
 	var list = make([]ArticleListResponse, 0)
 	//collectMap := redis_article.GetAllCacheCollect()
@@ -191,8 +210,8 @@ func (ArticleApi) ArticleListView(c *gin.Context) {
 
 		list = append(list, ArticleListResponse{
 			ArticleModel: model,
-			//UserTop:      userTopMap[model.ID],
-			//AdminTop:     adminTopMap[model.ID],
+			UserTop:      userTopMap[model.ID],
+			AdminTop:     adminTopMap[model.ID],
 			//UserNickname: model.UserModel.Nickname,
 			//UserAvatar:   model.UserModel.Avatar,
 		})
@@ -212,5 +231,6 @@ func (ArticleApi) ArticleListView(c *gin.Context) {
 	//
 	//	list = append(list, data)
 	//}
+
 	res.OkWithList(list, count, c)
 }
