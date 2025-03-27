@@ -49,7 +49,7 @@ func list() {
 func DocDelete() {
 
 	deleteResponse, err := global.ESClient.Delete().
-		Index(models.ArticleModel{}.Index()).Id("1kNxy5UBk_gzP2OQjYpI").Refresh("true").Do(context.Background())
+		Index(models.ArticleModel{}.Index()).Id("1").Refresh("true").Do(context.Background())
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -74,6 +74,6 @@ func main() {
 	global.ESClient = core.EsConnect()
 	//create()
 	//list()
-	//DocDelete()
-	update()
+	DocDelete()
+	//update()
 }

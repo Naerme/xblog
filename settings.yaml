@@ -7,25 +7,42 @@ log:
   app: blogx_server
   dir: logs
 db:
-  user: root
-  password: 123456
-  host: 192.168.168.128
-  port: 3307
-  db: blogx
-  debug: false
-  source: mysql
-db1:
-  user: root
-  password: 123456
-  host: 192.168.168.128
-  port: 3306
-  db: blogx
-  debug: false
-  source: mysql
+  - user: root
+    password: 123456
+    host: 192.168.168.128
+    port: 3306
+    db: blogx
+    debug: false
+    source: mysql
+  - user: root
+    password: 123456
+    host: 192.168.168.128
+    port: 3307
+    db: blogx
+    debug: false
+    source: mysql
 es:
-  url: http://192.168.168.128:9200
+  addr: 192.168.168.128:9200
+  is_https:
   username:
   password:
+river:
+  enable: true
+  server_id: 1001
+  flavor: mysql
+  data_dir: ./var
+  source:
+    - schema: blogx
+      tables:
+      - article_models
+  rule:
+    - schema: blogx
+      table: article_models
+      index: article_index
+      type: _doc
+      field:
+        tag_list: tag_list,list
+  bulk_size: 128
 jwt:
   expire: 24
   secret: xxx

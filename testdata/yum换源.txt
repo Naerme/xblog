@@ -25,6 +25,13 @@ systemctl show docker --property Environment
 
 192.168.168.128
 
+docker exec -it mysql-slave bash
+mysql -uroot -p123456
+
+CHANGE MASTER TO MASTER_HOST='10.2.0.2', MASTER_USER='repl', MASTER_PASSWORD='123456', MASTER_LOG_FILE='mysql-bin.000005', MASTER_LOG_POS=9158;
+start slave;
+show slave status \G;
+
 
 
 db:

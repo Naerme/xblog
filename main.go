@@ -18,6 +18,7 @@ func main() {
 	global.ESClient = core.EsConnect()
 
 	flags.Run()
+	core.InitMysqlES()
 	router.Run()
 
 }

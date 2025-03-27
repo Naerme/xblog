@@ -9,11 +9,11 @@ import (
 
 func EsConnect() *elastic.Client {
 	es := global.Conifg.ES
-	if es.Url == "" {
+	if es.Addr == "" {
 		return nil
 	}
 	client, err := elastic.NewClient(
-		elastic.SetURL(es.Url),
+		elastic.SetURL(es.Url()),
 		elastic.SetSniff(false),
 		elastic.SetBasicAuth(es.Username, es.Password),
 	)
