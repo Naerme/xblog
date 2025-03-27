@@ -4,6 +4,7 @@ import (
 	"blogx_server/common/res"
 	"blogx_server/global"
 	"bytes"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"io"
@@ -39,6 +40,7 @@ func CaptchaMiddleware(c *gin.Context) {
 	//}
 	//c.Request.Body = io.NopCloser(bytes.NewReader(body)) //body用完写回去
 	if !global.Conifg.Site.Login.Captcha {
+		fmt.Println("已关闭验证码")
 		return
 	}
 	body, err := c.GetRawData()
