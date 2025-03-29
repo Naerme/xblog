@@ -8,4 +8,5 @@ type CollectModel struct {
 	ArticleCount int       `json:"articleCount"`
 	UserID       uint      `json:"userID"`
 	UserModel    UserModel `gorm:"foreignKey:UserID" json:"-"`
+	IsDefault    bool      `json:"isDefault"` //是否是默认收藏夹
 }
