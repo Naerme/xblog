@@ -1,7 +1,7 @@
 package main
 
 import (
-	"blogx_server/utils/markdowm"
+	"blogx_server/utils/markdown"
 	"bytes"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
@@ -18,7 +18,7 @@ var md = `
 `
 
 func main() {
-	html := markdowm.MdToHtml(md)
+	html := markdown.MdToHtml(md)
 
 	//fmt.Println(html)
 	doc, err := goquery.NewDocumentFromReader(bytes.NewReader([]byte(html)))

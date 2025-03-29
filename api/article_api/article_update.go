@@ -8,29 +8,43 @@ import (
 	"blogx_server/models/ctype"
 	"blogx_server/models/enum"
 	"blogx_server/utils/jwts"
+
 	"blogx_server/utils/markdown"
 	"bytes"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gin-gonic/gin"
 )
 
-type ArticleCreateRequest struct {
-	Title       string             `json:"title" binding:"required"`
-	Abstract    string             `json:"abstract"`
-	Content     string             `json:"content" binding:"required"`
-	CategoryID  *uint              `json:"categoryID"`
-	TagList     ctype.List         `json:"tagList"`
-	Cover       string             `json:"cover"`
-	OpenComment bool               `json:"openComment"`
-	Status      enum.ArticleStatus `json:"status" binding:"required,oneof=1 2"`
+type ArticleUpdateRequest struct {
+	ID          uint       `json:"id" binding:"required"`
+	Title       string     `json:"title" binding:"required"`
+	Abstract    string     `json:"abstract"`
+	Content     string     `json:"content" binding:"required"`
+	CategoryID  *uint      `json:"categoryID"`
+	TagList     ctype.List `json:"tagList"`
+	Cover       string     `json:"cover"`
+	OpenComment bool       `json:"openComment"`
 }
 
-func (ArticleApi) ArticleCreateView(c *gin.Context) {
-	cr := middleware.GetBind[ArticleCreateRequest](c)
+func (ArticleApi) ArticleUpdateView(c *gin.Context) {
+	cr := middleware.GetBind[ArticleUpdateRequest](c)
 
 	user, err := jwts.GetClaims(c).GetUser()
 	if err != nil {
 		res.FailWithMsg("用户不存在", c)
+		return
+	}
+
+	var article models.ArticleModel
+	err = global.DB.Take(&article, cr.ID).Error
+	if err != nil {
+		res.FailWithMsg("文章不存在", c)
+		return
+	}
+
+	// 更新的文章必须是自己的
+	if article.UserID != user.ID {
+		res.FailWithMsg("只能更新自己的文章", c)
 		return
 	}
 
@@ -72,29 +86,25 @@ func (ArticleApi) ArticleCreateView(c *gin.Context) {
 			cr.Abstract = string([]rune(htmlText)[:200])
 		}
 	}
-
-	//正文内容图片转存
-
-	var article = models.ArticleModel{
-		Title:       cr.Title,
-		Abstract:    cr.Abstract,
-		Content:     cr.Content,
-		UserID:      user.ID,
-		TagList:     cr.TagList,
-		Cover:       cr.Cover,
-		OpenComment: cr.OpenComment,
-		CategoryID:  cr.CategoryID,
-		Status:      cr.Status,
+	mps := map[string]any{
+		"title":        cr.Title,
+		"abstract":     cr.Abstract,
+		"content":      cr.Content,
+		"category_id":  cr.CategoryID,
+		"tag_list":     cr.TagList,
+		"cover":        cr.Cover,
+		"open_comment": cr.OpenComment,
 	}
-	if cr.Status == enum.ArticleStatusExamine && global.Conifg.Site.Article.NoExamine {
-		article.Status = enum.ArticleStatusPublished
+	if article.Status == enum.ArticleStatusPublished && !global.Conifg.Site.Article.NoExamine {
+		// 如果是已发布的文章，进行编辑，那么就要改成待审核
+		mps["status"] = enum.ArticleStatusExamine
 	}
 
-	err = global.DB.Create(&article).Error
+	err = global.DB.Model(&article).Updates(mps).Error
 	if err != nil {
-		res.FailWithMsg("文章创建失败", c)
+		res.FailWithMsg("更新失败", c)
 		return
 	}
 
-	res.OkWithMsg("文章创建成功", c)
+	res.OkWithMsg("文章更新成功", c)
 }

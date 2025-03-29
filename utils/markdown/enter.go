@@ -1,4 +1,4 @@
-package markdowm
+package markdown
 
 import (
 	"github.com/gomarkdown/markdown"
