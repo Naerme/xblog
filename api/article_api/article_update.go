@@ -8,10 +8,9 @@ import (
 	"blogx_server/models/ctype"
 	"blogx_server/models/enum"
 	"blogx_server/utils/jwts"
+	"blogx_server/utils/xss"
 
 	"blogx_server/utils/markdown"
-	"bytes"
-	"github.com/PuerkitoBio/goquery"
 	"github.com/gin-gonic/gin"
 )
 
@@ -57,34 +56,22 @@ func (ArticleApi) ArticleUpdateView(c *gin.Context) {
 			return
 		}
 	}
-
-	// 文章正文防xss注入
-	contentDoc, err := goquery.NewDocumentFromReader(bytes.NewReader([]byte(cr.Content)))
-	if err != nil {
-		res.FailWithMsg("正文解析错误", c)
-		return
+	if global.Conifg.Site.SiteInfo.Mode == 2 {
+		if user.Role != enum.AdminRole {
+			res.FailWithMsg("博客模式下，普通用户不能发文章", c)
+		}
 	}
-	contentDoc.Find("script").Remove()
-	contentDoc.Find("img").Remove()
-	contentDoc.Find("iframe").Remove()
-
-	cr.Content = contentDoc.Text()
+	// 文章正文防xss注入
+	cr.Content = xss.XSSFilter(cr.Content)
 
 	// 如果不传简介，那么从正文中取前30个字符
 	if cr.Abstract == "" {
-		// 把markdown转成html，再取文本
-		html := markdown.MdToHtml(cr.Content)
-		doc, err := goquery.NewDocumentFromReader(bytes.NewReader([]byte(html)))
-		if err != nil {
+		abs, err1 := markdown.ExtractContent(cr.Content, 100)
+		if err1 != nil {
 			res.FailWithMsg("正文解析错误", c)
 			return
 		}
-		htmlText := doc.Text()
-		cr.Abstract = htmlText
-		if len(htmlText) > 200 {
-			// 如果大于200，就取前200
-			cr.Abstract = string([]rune(htmlText)[:200])
-		}
+		cr.Abstract = abs
 	}
 	mps := map[string]any{
 		"title":        cr.Title,
