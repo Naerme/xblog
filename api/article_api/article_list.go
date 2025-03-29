@@ -4,6 +4,7 @@ import (
 	"blogx_server/common"
 	"blogx_server/common/res"
 	"blogx_server/global"
+	"blogx_server/service/redis_service/redis_article"
 	"blogx_server/utils/sql"
 	"fmt"
 
@@ -139,9 +140,7 @@ func (ArticleApi) ArticleListView(c *gin.Context) {
 			if i2.UserModel.Role == enum.AdminRole {
 				adminTopMap[i2.ArticleID] = true
 			}
-
 			userTopMap[i2.ArticleID] = true
-
 		}
 	}
 	//var userTopQuery = global.DB.Where("")
@@ -187,27 +186,24 @@ func (ArticleApi) ArticleListView(c *gin.Context) {
 	//})
 
 	var list = make([]ArticleListResponse, 0)
-	//collectMap := redis_article.GetAllCacheCollect()
-	//diggMap := redis_article.GetAllCacheDigg()
-	//lookMap := redis_article.GetAllCacheLook()
+	collectMap := redis_article.GetAllCacheCollect()
+	diggMap := redis_article.GetAllCacheDigg()
+	lookMap := redis_article.GetAllCacheLook()
 	//commentMap := redis_article.GetAllCacheComment()
-	//
-	//for _, model := range _list {
-	//	model.Content = ""
-	//	model.DiggCount = model.DiggCount + diggMap[model.ID]
-	//	model.CollectCount = model.CollectCount + collectMap[model.ID]
-	//	model.LookCount = model.LookCount + lookMap[model.ID]
-	//	model.CommentCount = model.CommentCount + commentMap[model.ID]
-	//	data := ArticleListResponse{
-	//		ArticleModel: model,
-	//		UserTop:      userTopMap[model.ID],
-	//		AdminTop:     adminTopMap[model.ID],
-	//		UserNickname: model.UserModel.Nickname,
-	//		UserAvatar:   model.UserModel.Avatar,
-	//	}
+
 	for _, model := range _list {
 		model.Content = ""
+		model.DiggCount = model.DiggCount + diggMap[model.ID]
 
+		model.CollectCount = model.CollectCount + collectMap[model.ID]
+		model.LookCount = model.LookCount + lookMap[model.ID]
+		//model.CommentCount = model.CommentCount + commentMap[model.ID]
+		//data := ArticleListResponse{
+		//	ArticleModel: model,
+		//	UserTop:      userTopMap[model.ID],
+		//	AdminTop:     adminTopMap[model.ID],
+		//	//UserNickname: model.UserModel.Nickname,
+		//	//UserAvatar:   model.UserModel.Avatar,
 		list = append(list, ArticleListResponse{
 			ArticleModel: model,
 			UserTop:      userTopMap[model.ID],
@@ -215,7 +211,19 @@ func (ArticleApi) ArticleListView(c *gin.Context) {
 			//UserNickname: model.UserModel.Nickname,
 			//UserAvatar:   model.UserModel.Avatar,
 		})
+
 	}
+	//for _, model := range _list {
+	//	model.Content = ""
+	//
+	//	list = append(list, ArticleListResponse{
+	//		ArticleModel: model,
+	//		UserTop:      userTopMap[model.ID],
+	//		AdminTop:     adminTopMap[model.ID],
+	//		//UserNickname: model.UserModel.Nickname,
+	//		//UserAvatar:   model.UserModel.Avatar,
+	//	})
+	//}
 
 	//data := ArticleListResponse{
 	//	ArticleModel: model,

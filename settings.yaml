@@ -45,7 +45,7 @@ river:
   bulk_size: 128
 jwt:
   expire: 24
-  secret: xxx
+  secret: xxx 
   issuer: hjy
 redis:
   addr: 127.0.0.1:6379

@@ -6,6 +6,8 @@ import (
 	"blogx_server/middleware"
 	"blogx_server/models"
 	"blogx_server/models/enum"
+	"blogx_server/service/redis_service/redis_article"
+
 	//"blogx_server/service/redis_service/redis_article"
 	"blogx_server/utils/jwts"
 	"github.com/gin-gonic/gin"
@@ -80,15 +82,15 @@ func (ArticleApi) ArticleDetailView(c *gin.Context) {
 	//		data.IsCollect = true
 	//	}
 	//}
-	//
-	//lookCount := redis_article.GetCacheLook(article.ID)
-	//diggCount := redis_article.GetCacheDigg(article.ID)
-	//collectCount := redis_article.GetCacheCollect(article.ID)
+
+	lookCount := redis_article.GetCacheLook(article.ID)
+	diggCount := redis_article.GetCacheDigg(article.ID)
+	collectCount := redis_article.GetCacheCollect(article.ID)
 	//commentCount := redis_article.GetCacheComment(article.ID)
-	//
-	//data.DiggCount = article.DiggCount + diggCount
-	//data.CollectCount = article.CollectCount + collectCount
-	//data.LookCount = article.LookCount + lookCount
+
+	article.DiggCount = article.DiggCount + diggCount
+	article.CollectCount = article.CollectCount + collectCount
+	article.LookCount = article.LookCount + lookCount
 	//data.CommentCount = article.CommentCount + commentCount
 	//
 	//if article.CategoryModel != nil {
