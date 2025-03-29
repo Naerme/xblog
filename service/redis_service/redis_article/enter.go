@@ -2,6 +2,9 @@ package redis_article
 
 import (
 	"blogx_server/global"
+	"blogx_server/utils/date"
+	"fmt"
+	"github.com/sirupsen/logrus"
 
 	"strconv"
 )
@@ -79,28 +82,28 @@ func GetAllCacheCollect() (mps map[uint]int) {
 	return GetAll(articleCacheCollect)
 }
 
-//func SetUserArticleHistoryCache(articleID, userID uint) {
-//	key := fmt.Sprintf("histroy_%d", userID)
-//	field := fmt.Sprintf("%d", articleID)
-//
-//	endTime := date.GetNowAfter()
-//	err := global.Redis.HSet(key, field, "").Err()
-//	if err != nil {
-//		logrus.Error(err)
-//		return
-//	}
-//	err = global.Redis.ExpireAt(key, endTime).Err()
-//	if err != nil {
-//		logrus.Error(err)
-//		return
-//	}
-//}
-//func GetUserArticleHistoryCache(articleID, userID uint) (ok bool) {
-//	key := fmt.Sprintf("histroy_%d", userID)
-//	field := fmt.Sprintf("%d", articleID)
-//	err := global.Redis.HGet(key, field).Err()
-//	if err != nil {
-//		return false
-//	}
-//	return true
-//}
+func SetUserArticleHistoryCache(articleID, userID uint) {
+	key := fmt.Sprintf("histroy_%d", userID)
+	field := fmt.Sprintf("%d", articleID)
+
+	endTime := date.GetNowAfter()
+	err := global.Redis.HSet(key, field, "").Err()
+	if err != nil {
+		logrus.Error(err)
+		return
+	}
+	err = global.Redis.ExpireAt(key, endTime).Err()
+	if err != nil {
+		logrus.Error(err)
+		return
+	}
+}
+func GetUserArticleHistoryCache(articleID, userID uint) (ok bool) {
+	key := fmt.Sprintf("histroy_%d", userID)
+	field := fmt.Sprintf("%d", articleID)
+	err := global.Redis.HGet(key, field).Err()
+	if err != nil {
+		return false
+	}
+	return true
+}

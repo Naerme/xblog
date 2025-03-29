@@ -7,6 +7,7 @@ import (
 	"blogx_server/models"
 	"blogx_server/models/enum"
 	"blogx_server/service/redis_service/redis_article"
+	"github.com/sirupsen/logrus"
 
 	//"blogx_server/service/redis_service/redis_article"
 	"blogx_server/utils/jwts"
@@ -31,11 +32,11 @@ func (ArticleApi) ArticleLookView(c *gin.Context) {
 	//
 	// 引入缓存
 	// 当天这个用户请求这个文章之后，将用户id和文章id作为key存入缓存，在这里进行判断，如果存在就直接返回
-	//if redis_article.GetUserArticleHistoryCache(cr.ArticleID, claims.UserID) {
-	//	logrus.Infof("在缓存里面")
-	//	res.OkWithMsg("成功", c)
-	//	return
-	//}
+	if redis_article.GetUserArticleHistoryCache(cr.ArticleID, claims.UserID) {
+		logrus.Infof("在缓存里面")
+		res.OkWithMsg("成功", c)
+		return
+	}
 
 	var article models.ArticleModel
 	err = global.DB.Take(&article, "status = ? and id = ?", enum.ArticleStatusPublished, cr.ArticleID).Error
@@ -67,7 +68,7 @@ func (ArticleApi) ArticleLookView(c *gin.Context) {
 	}
 
 	redis_article.SetCacheLook(cr.ArticleID, true)
-	//redis_article.SetUserArticleHistoryCache(cr.ArticleID, claims.UserID)
+	redis_article.SetUserArticleHistoryCache(cr.ArticleID, claims.UserID)
 
 	res.OkWithMsg("成功", c)
 }
