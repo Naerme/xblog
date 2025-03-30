@@ -107,3 +107,10 @@ func GetUserArticleHistoryCache(articleID, userID uint) (ok bool) {
 	}
 	return true
 }
+
+func Clear() {
+	err := global.Redis.Del("article_look_key", "article_digg_key", "article_collect_key").Err()
+	if err != nil {
+		logrus.Error(err)
+	}
+}
