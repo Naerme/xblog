@@ -3,6 +3,7 @@ package comment_service
 import (
 	"blogx_server/global"
 	"blogx_server/models"
+	"blogx_server/service/redis_service/redis_comment"
 	"time"
 )
 
@@ -121,7 +122,7 @@ func getCommentTreeV4(id uint, line int) (res *CommentResponse) {
 		ArticleID:    model.ArticleID,
 		ParentID:     model.ParentID,
 		DiggCount:    model.DiggCount,
-		ApplyCount:   0,
+		ApplyCount:   redis_comment.GetCacheApply(model.ID),
 		SubComments:  make([]*CommentResponse, 0),
 	}
 	if line >= global.Conifg.Site.Article.CommentLine {
