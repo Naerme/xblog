@@ -189,7 +189,7 @@ func (ArticleApi) ArticleListView(c *gin.Context) {
 	collectMap := redis_article.GetAllCacheCollect()
 	diggMap := redis_article.GetAllCacheDigg()
 	lookMap := redis_article.GetAllCacheLook()
-	//commentMap := redis_article.GetAllCacheComment()
+	commentMap := redis_article.GetAllCacheComment()
 
 	for _, model := range _list {
 		model.Content = ""
@@ -197,13 +197,13 @@ func (ArticleApi) ArticleListView(c *gin.Context) {
 
 		model.CollectCount = model.CollectCount + collectMap[model.ID]
 		model.LookCount = model.LookCount + lookMap[model.ID]
-		//model.CommentCount = model.CommentCount + commentMap[model.ID]
+		model.CommentCount = model.CommentCount + commentMap[model.ID]
 		data := ArticleListResponse{
 			ArticleModel: model,
 			UserTop:      userTopMap[model.ID],
 			AdminTop:     adminTopMap[model.ID],
-			//UserNickname: model.UserModel.Nickname,
-			//UserAvatar:   model.UserModel.Avatar,
+			UserNickname: model.UserModel.Nickname,
+			UserAvatar:   model.UserModel.Avatar,
 		}
 		if model.CategoryModel != nil {
 			data.CategoryTitle = &model.CategoryModel.Title
