@@ -21,6 +21,7 @@ func Run() {
 	CaptchaRouter(nr)
 	UserRouter(nr)
 	ArticleRouter(nr)
+	CommentRouter(nr)
 
 	addr := global.Conifg.System.Addr()
 	r.Run(addr)
