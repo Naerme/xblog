@@ -3,6 +3,7 @@ package comment_service
 import (
 	"blogx_server/global"
 	"blogx_server/models"
+	"time"
 )
 
 // GetRootComment 获取一个评论的根评论
@@ -38,6 +39,73 @@ func GetCommentTreeV2(id uint) (model *models.CommentModel) {
 		commentModel := model.SubCommentList[i]
 		item := GetCommentTreeV2(commentModel.ID)
 		model.SubCommentList[i] = item
+	}
+	return
+}
+
+func GetCommentTreeV3(id uint) (model *models.CommentModel) {
+	model = &models.CommentModel{
+		Model: models.Model{ID: id},
+	}
+	global.DB.Preload("SubCommentList").Take(model)
+	for i := 0; i < len(model.SubCommentList); i++ {
+		commentModel := model.SubCommentList[i]
+		item := GetCommentTreeV3(commentModel.ID)
+		model.SubCommentList[i] = item
+	}
+	return
+}
+
+// GetCommentOneDimensional 评论一维化
+func GetCommentOneDimensional(id uint) (list []models.CommentModel) {
+	model := models.CommentModel{
+		Model: models.Model{ID: id},
+	}
+
+	global.DB.Preload("SubCommentList").Take(&model)
+	list = append(list, model)
+	for _, commentModel := range model.SubCommentList {
+		subList := GetCommentOneDimensional(commentModel.ID)
+		list = append(list, subList...)
+	}
+	return
+}
+
+type CommentResponse struct {
+	ID           uint               `json:"id"`
+	CreatedAt    time.Time          `json:"createdAt"`
+	Content      string             `json:"content"`
+	UserID       uint               `json:"userID"`
+	UserNickname string             `json:"userNickname"`
+	UserAvatar   string             `json:"userAvatar"`
+	ArticleID    uint               `json:"articleID"`
+	ParentID     *uint              `json:"parentID"`
+	DiggCount    int                `json:"diggCount"`
+	ApplyCount   int                `json:"applyCount"`
+	SubComments  []*CommentResponse `json:"subComments"`
+}
+
+func GetCommentTreeV4(id uint) (res *CommentResponse) {
+	model := &models.CommentModel{
+		Model: models.Model{ID: id},
+	}
+
+	global.DB.Preload("UserModel").Preload("SubCommentList").Take(model)
+	res = &CommentResponse{
+		ID:           model.ID,
+		CreatedAt:    model.CreatedAt,
+		Content:      model.Content,
+		UserID:       model.UserID,
+		UserNickname: model.UserModel.Nickname,
+		UserAvatar:   model.UserModel.Avatar,
+		ArticleID:    model.ArticleID,
+		ParentID:     model.ParentID,
+		DiggCount:    model.DiggCount,
+		ApplyCount:   0,
+		SubComments:  make([]*CommentResponse, 0),
+	}
+	for _, commentModel := range model.SubCommentList {
+		res.SubComments = append(res.SubComments, GetCommentTreeV4(commentModel.ID))
 	}
 	return
 }

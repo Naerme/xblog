@@ -6,6 +6,8 @@ import (
 	"blogx_server/global"
 	"blogx_server/models"
 	"fmt"
+	"github.com/goccy/go-json"
+	"time"
 )
 
 func main() {
@@ -41,10 +43,14 @@ func main() {
 	//	}
 	//}
 
-	commentList := GetCommentOneDimensional(2)
-	for _, model := range commentList[1:0] {
-		fmt.Println(model.ID)
-	}
+	//commentList := GetCommentOneDimensional(2)
+	//for _, model := range commentList[1:] {
+	//	fmt.Println(model.ID)
+	//}
+
+	res := GetCommentTreeV4(2)
+	byteData, _ := json.Marshal(res)
+	fmt.Println(string(byteData))
 }
 
 // GetRootComment 获取一个评论的根评论
@@ -79,6 +85,45 @@ func GetCommentTreeV3(id uint) (model *models.CommentModel) {
 		commentModel := model.SubCommentList[i]
 		item := GetCommentTreeV3(commentModel.ID)
 		model.SubCommentList[i] = item
+	}
+	return
+}
+
+type CommentResponse struct {
+	ID           uint               `json:"id"`
+	CreatedAt    time.Time          `json:"createdAt"`
+	Content      string             `json:"content"`
+	UserID       uint               `json:"userID"`
+	UserNickname string             `json:"userNickname"`
+	UserAvatar   string             `json:"userAvatar"`
+	ArticleID    uint               `json:"articleID"`
+	ParentID     *uint              `json:"parentID"`
+	DiggCount    int                `json:"diggCount"`
+	ApplyCount   int                `json:"applyCount"`
+	SubComments  []*CommentResponse `json:"subComments"`
+}
+
+func GetCommentTreeV4(id uint) (res *CommentResponse) {
+	model := &models.CommentModel{
+		Model: models.Model{ID: id},
+	}
+
+	global.DB.Preload("UserModel").Preload("SubCommentList").Take(model)
+	res = &CommentResponse{
+		ID:           model.ID,
+		CreatedAt:    model.CreatedAt,
+		Content:      model.Content,
+		UserID:       model.UserID,
+		UserNickname: model.UserModel.Nickname,
+		UserAvatar:   model.UserModel.Avatar,
+		ArticleID:    model.ArticleID,
+		ParentID:     model.ParentID,
+		DiggCount:    model.DiggCount,
+		ApplyCount:   0,
+		SubComments:  make([]*CommentResponse, 0),
+	}
+	for _, commentModel := range model.SubCommentList {
+		res.SubComments = append(res.SubComments, GetCommentTreeV4(commentModel.ID))
 	}
 	return
 }
