@@ -26,19 +26,24 @@ func main() {
 	//}
 	//GetCommentTree(&model)
 
-	model := GetCommentTreeV3(1)
-	fmt.Println(model.ID)
-	for _, c1 := range model.SubCommentList {
-		fmt.Println("1:", c1.ID)
-		for _, c2 := range c1.SubCommentList {
-			fmt.Println("2:", c2.ID)
-			for _, c3 := range c2.SubCommentList {
-				fmt.Println("3:", c3.ID)
-				for _, c4 := range c3.SubCommentList {
-					fmt.Println("4:", c4.ID)
-				}
-			}
-		}
+	//model := GetCommentTreeV3(1)
+	//fmt.Println(model.ID)
+	//for _, c1 := range model.SubCommentList {
+	//	fmt.Println("1:", c1.ID)
+	//	for _, c2 := range c1.SubCommentList {
+	//		fmt.Println("2:", c2.ID)
+	//		for _, c3 := range c2.SubCommentList {
+	//			fmt.Println("3:", c3.ID)
+	//			for _, c4 := range c3.SubCommentList {
+	//				fmt.Println("4:", c4.ID)
+	//			}
+	//		}
+	//	}
+	//}
+
+	commentList := GetCommentOneDimensional(2)
+	for _, model := range commentList[1:0] {
+		fmt.Println(model.ID)
 	}
 }
 
@@ -74,6 +79,21 @@ func GetCommentTreeV3(id uint) (model *models.CommentModel) {
 		commentModel := model.SubCommentList[i]
 		item := GetCommentTreeV3(commentModel.ID)
 		model.SubCommentList[i] = item
+	}
+	return
+}
+
+// GetCommentOneDimensional 评论一维化
+func GetCommentOneDimensional(id uint) (list []models.CommentModel) {
+	model := models.CommentModel{
+		Model: models.Model{ID: id},
+	}
+
+	global.DB.Preload("SubCommentList").Take(&model)
+	list = append(list, model)
+	for _, commentModel := range model.SubCommentList {
+		subList := GetCommentOneDimensional(commentModel.ID)
+		list = append(list, subList...)
 	}
 	return
 }
