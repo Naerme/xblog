@@ -38,9 +38,14 @@ func (CommentApi) CommentCreateView(c *gin.Context) {
 	//去找这个评论的根评论
 	if cr.ParentID != nil {
 		// 有父评论
-		r := comment_service.GetRootComment(*cr.ParentID)
-		if r != nil {
-			model.RootParentID = &r.ID
+		parentList := comment_service.GetParents(*cr.ParentID)
+		//判断父评论的层级是否满足
+		if len(parentList)+1 > global.Conifg.Site.Article.CommentLine {
+			res.FailWithMsg("评论层级达到限制", c)
+			return
+		}
+		if len(parentList) > 0 {
+			model.RootParentID = &parentList[len(parentList)-1].ID
 		}
 	}
 

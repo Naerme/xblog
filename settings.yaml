@@ -80,7 +80,7 @@ site:
     list: []
   article:
     noExamine: true
-    commentLine: 0
+    commentLine: 3
 email:
   domain: smtp.qq.com
   port: 587
