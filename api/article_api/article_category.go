@@ -144,3 +144,14 @@ func (ArticleApi) CategoryRemoveView(c *gin.Context) {
 
 	res.OkWithMsg(msg, c)
 }
+
+func (ArticleApi) CategoryOptionsView(c *gin.Context) {
+	claims := jwts.GetClaims(c)
+
+	var list []models.OptionsResponse[uint]
+	global.DB.Model(models.CategoryModel{}).Where("user_id = ?", claims.UserID).
+		Select("id as value", "title as label").Scan(&list)
+
+	res.OkWithData(list, c)
+
+}
