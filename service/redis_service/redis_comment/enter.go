@@ -10,6 +10,7 @@ type commentCacheType string
 
 const (
 	commentCacheApply commentCacheType = "comment_apply_key"
+	commentCacheDigg  commentCacheType = "comment_digg_key"
 )
 
 func set(t commentCacheType, commentID uint, n int) {
@@ -59,4 +60,15 @@ func Clear() {
 	if err != nil {
 		logrus.Error(err)
 	}
+}
+
+func SetCacheDigg(commentID uint, n int) {
+	set(commentCacheDigg, commentID, n)
+}
+
+func GetCacheDigg(commentID uint) int {
+	return get(commentCacheDigg, commentID)
+}
+func GetAllCacheDigg() (mps map[uint]int) {
+	return GetAll(commentCacheDigg)
 }

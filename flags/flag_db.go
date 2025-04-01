@@ -26,6 +26,7 @@ func FlagDB() {
 		&models.ImageModel{},
 		&models.UserLoginModel{},
 		&models.UserTopArticleModel{}, //用户指定文章记录表
+		&models.CommentDiggModel{},    //用户指定文章记录表
 
 	)
 	if err != nil {
