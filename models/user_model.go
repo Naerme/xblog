@@ -42,5 +42,13 @@ func (u *UserModel) CodeAge() int {
 	return int(math.Ceil(sub.Hours() / 24 / 365))
 }
 func (u *UserModel) AfterCreate(tx *gorm.DB) error {
-	return tx.Create(&UserConfModel{UserID: u.ID}).Error
+	err := tx.Create(&UserConfModel{UserID: u.ID, OpenCollect: true, OpenFollow: true, OpenFans: true, HomeStyleID: 1}).Error
+	err = tx.Create(&UserMessageConfModel{
+		UserID:             u.ID,
+		OpenCommentMessage: true,
+		OpenDiggMessage:    true,
+		OpenPrivateChat:    true,
+	}).Error
+
+	return err
 }
