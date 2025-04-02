@@ -7,6 +7,7 @@ import (
 	"blogx_server/models"
 	"blogx_server/models/enum"
 	"blogx_server/service/comment_service"
+	"blogx_server/service/message_service"
 	"blogx_server/service/redis_service/redis_comment"
 	"blogx_server/utils/jwts"
 	"fmt"
@@ -33,6 +34,8 @@ func (CommentApi) CommentRemoveApi(c *gin.Context) {
 			return
 		}
 	}
+
+	message_service.InsertSystemMessage(model.UserID, "管理员删除了你的评论", fmt.Sprintf("%s 内容不符合社区规范", model.Content), "", "")
 
 	// 找所有的子评论，还要找所有的父评论
 	subList := comment_service.GetCommentOneDimensional(model.ID)
