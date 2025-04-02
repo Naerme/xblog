@@ -6,6 +6,7 @@ import (
 	"blogx_server/middleware"
 	"blogx_server/models"
 	"blogx_server/models/enum"
+	"blogx_server/service/message_service"
 	"blogx_server/service/redis_service/redis_article"
 	"blogx_server/utils/jwts"
 	"github.com/gin-gonic/gin"
@@ -27,16 +28,19 @@ func (ArticleApi) ArticleDiggView(c *gin.Context) {
 	var userDiggArticle models.ArticleDiggModel
 	err = global.DB.Take(&userDiggArticle, "user_id = ? and article_id = ?", claims.UserID, article.ID).Error
 	if err != nil {
-		// 点赞
-		err = global.DB.Create(&models.ArticleDiggModel{
+		model := models.ArticleDiggModel{
 			UserID:    claims.UserID,
 			ArticleID: cr.ID,
-		}).Error
+		}
+		// 点赞
+		err = global.DB.Create(&model).Error
 		if err != nil {
 			res.FailWithMsg("点赞失败", c)
 			return
 		}
 		redis_article.SetCacheDigg(cr.ID, true)
+		//给文章拥有者发消息
+		message_service.InsertDiggArticleMessage(model)
 		res.OkWithMsg("点赞成功", c)
 		return
 	}
