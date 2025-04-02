@@ -7,6 +7,7 @@ import (
 	"blogx_server/models"
 	"blogx_server/models/enum"
 	"blogx_server/service/comment_service"
+	"blogx_server/service/message_service"
 	"blogx_server/service/redis_service/redis_article"
 	"blogx_server/utils/jwts"
 	"github.com/gin-gonic/gin"
@@ -55,6 +56,7 @@ func (CommentApi) CommentCreateView(c *gin.Context) {
 		return
 	}
 
+	go message_service.InsertCommentMessage(model)
 	redis_article.SetCacheComment(cr.ArticleID, 1)
 
 	res.OkWithMsg("发布评论成功", c)
