@@ -62,7 +62,7 @@ func (ArticleApi) CollectCreateView(c *gin.Context) {
 		res.FailWithMsg("更新收藏夹错误", c)
 		return
 	}
-
+	
 	res.OkWithMsg("更新收藏夹成功", c)
 	return
 }
