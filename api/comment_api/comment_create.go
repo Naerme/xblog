@@ -9,6 +9,7 @@ import (
 	"blogx_server/service/comment_service"
 	"blogx_server/service/message_service"
 	"blogx_server/service/redis_service/redis_article"
+	"blogx_server/service/redis_service/redis_comment"
 	"blogx_server/utils/jwts"
 	"github.com/gin-gonic/gin"
 )
@@ -47,6 +48,13 @@ func (CommentApi) CommentCreateView(c *gin.Context) {
 		}
 		if len(parentList) > 0 {
 			model.RootParentID = &parentList[len(parentList)-1].ID
+			for _, commentModel := range parentList {
+				redis_comment.SetCacheApply(commentModel.ID, 1)
+			}
+			// 给父评论的用有人发消息
+			defer func() {
+				go message_service.InsertApplyMessage(model)
+			}()
 		}
 	}
 
