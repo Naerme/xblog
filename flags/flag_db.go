@@ -24,11 +24,12 @@ func FlagDB() {
 		&models.UserLoginModel{},
 		&models.GlobalNotificationModel{},
 		&models.ImageModel{},
-		&models.UserLoginModel{},
-		&models.UserTopArticleModel{},  //用户指定文章记录表
-		&models.CommentDiggModel{},     //用户指定文章记录表
-		&models.MessageModel{},         //用户指定文章记录表
-		&models.UserMessageConfModel{}, //用户指定文章记录表
+		&models.UserLoginModel{},              // 用户登陆记录表
+		&models.UserTopArticleModel{},         // 用户置顶文章表
+		&models.CommentDiggModel{},            // 用户点赞评论表
+		&models.MessageModel{},                // 站内信表
+		&models.UserMessageConfModel{},        // 用户消息配置表
+		&models.UserGlobalNotificationModel{}, // 用户全局消息表
 
 	)
 	if err != nil {
