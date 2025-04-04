@@ -72,13 +72,14 @@ type FocusUserListResponse struct {
 // FocusUserListView 我的关注和用户的关注
 func (FocusApi) FocusUserListView(c *gin.Context) {
 	cr := middleware.GetBind[FocusUserListRequest](c)
+	claims, err := jwts.ParseTokenByGin(c)
 
 	if cr.UserID != 0 {
 		// 传了用户id，我就查这个人关注的用户列表
 		var userConf models.UserConfModel
 		fmt.Println("cr.UserID:", cr.UserID)
-		err := global.DB.Take(&userConf, "user_id = ?", cr.UserID).Error
-		if err != nil {
+		err1 := global.DB.Take(&userConf, "user_id = ?", cr.UserID).Error
+		if err1 != nil {
 			res.FailWithMsg("用户配置信息不存在", c)
 			return
 		}
@@ -86,21 +87,38 @@ func (FocusApi) FocusUserListView(c *gin.Context) {
 			res.FailWithMsg("此用户未公开我的关注", c)
 			return
 		}
+		//如果你没登陆，我就不允许你查第二页
+		if err != nil || claims == nil {
+			if cr.Limit > 10 || cr.Page > 1 {
+				res.FailWithMsg("未登录用户只能显示第一页", c)
+				return
+			}
+		}
+
 	} else {
-		claims, err := jwts.ParseTokenByGin(c)
 		if err != nil || claims == nil {
 			res.FailWithMsg("请登录", c)
 			return
 		}
 		cr.UserID = claims.UserID
 	}
-	fmt.Println("cr.UserID:", cr.UserID)
+	query := global.DB.Model("")
+	if cr.Key != "" {
+		//模糊匹配用户
+		var userIDList []uint
+		global.DB.Model(&models.UserModel{}).Where("nickname like ?", fmt.Sprintf("%%%s%%", cr.Key)).
+			Select("id").Scan(&userIDList)
+		if len(userIDList) > 0 {
+			query.Where("focus_user_id in ?", userIDList)
+		}
+	}
 
 	_list, count, _ := common.ListQuery(models.UserFocusModel{
 		FocusUserID: cr.FocusUserID,
 		UserID:      cr.UserID,
 	}, common.Options{
 		PageInfo: cr.PageInfo,
+		Where:    query,
 		Preloads: []string{"FocusUserModel"},
 	})
 
@@ -129,12 +147,13 @@ type FansUserListResponse struct {
 // FansUserListView 我的粉丝和用户的粉丝
 func (FocusApi) FansUserListView(c *gin.Context) {
 	cr := middleware.GetBind[FocusUserListRequest](c)
+	claims, err := jwts.ParseTokenByGin(c)
 
 	if cr.UserID != 0 {
 		// 传了用户id，我就查这个人的粉丝列表
 		var userConf models.UserConfModel
-		err := global.DB.Take(&userConf, "user_id = ?", cr.UserID).Error
-		if err != nil {
+		err1 := global.DB.Take(&userConf, "user_id = ?", cr.UserID).Error
+		if err1 != nil {
 			res.FailWithMsg("用户配置信息不存在", c)
 			return
 		}
@@ -142,6 +161,13 @@ func (FocusApi) FansUserListView(c *gin.Context) {
 			res.FailWithMsg("此用户未公开我的粉丝", c)
 			return
 		}
+		if err != nil || claims == nil {
+			if cr.Limit > 10 || cr.Page > 1 {
+				res.FailWithMsg("未登录用户只能显示第一页", c)
+				return
+			}
+		}
+
 	} else {
 		claims, err := jwts.ParseTokenByGin(c)
 		if err != nil || claims == nil {
@@ -151,11 +177,23 @@ func (FocusApi) FansUserListView(c *gin.Context) {
 		cr.UserID = claims.UserID
 	}
 
+	query := global.DB.Model("")
+	if cr.Key != "" {
+		//模糊匹配用户
+		var userIDList []uint
+		global.DB.Model(&models.UserModel{}).Where("nickname like ?", fmt.Sprintf("%%%s%%", cr.Key)).
+			Select("id").Scan(&userIDList)
+		if len(userIDList) > 0 {
+			query.Where("user_id in ?", userIDList)
+		}
+	}
+
 	_list, count, _ := common.ListQuery(models.UserFocusModel{
 		FocusUserID: cr.UserID,
 		UserID:      cr.FocusUserID,
 	}, common.Options{
 		PageInfo: cr.PageInfo,
+		Where:    query,
 		Preloads: []string{"UserModel"},
 	})
 
