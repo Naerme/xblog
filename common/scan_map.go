@@ -12,6 +12,7 @@ type ModelMap interface {
 
 type ScanOption struct {
 	Where *gorm.DB
+	Key   string
 }
 
 func ScanMap[T ModelMap](model T, option ScanOption) (mp map[uint]T) {
