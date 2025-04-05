@@ -95,20 +95,12 @@ func (ChatApi) SessionListView(c *gin.Context) {
 		}
 	}
 
-	var userList []models.UserModel
-	var chatList []models.ChatModel
-	global.DB.Find(&userList, "id in ?", userIDList)
-	global.DB.Find(&chatList, "id in ?", chatIDList)
-
-	var userMap = map[uint]models.UserModel{}
-	for _, model := range userList {
-		userMap[model.ID] = model
-	}
-
-	var chatMap = map[uint]models.ChatModel{}
-	for _, model := range chatList {
-		chatMap[model.ID] = model
-	}
+	userMap := common.ScanMapV2(models.UserModel{}, common.ScanOption{
+		Where: global.DB.Where("id in ?", userIDList),
+	})
+	chatMap := common.ScanMapV2(models.ChatModel{}, common.ScanOption{
+		Where: global.DB.Where("id in ?", chatIDList),
+	})
 
 	relationMap := focus_service.CalcUserPatchRelationship(claims.UserID, userIDList)
 

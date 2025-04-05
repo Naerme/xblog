@@ -37,6 +37,10 @@ type UserConfModel struct {
 	HomeStyleID        uint       `json:"homeStyleID"`        // 主页样式的id
 }
 
+func (u UserModel) GetID() uint {
+	return u.ID
+}
+
 func (u *UserModel) CodeAge() int {
 	sub := time.Now().Sub(u.CreatedAt)
 	return int(math.Ceil(sub.Hours() / 24 / 365))
