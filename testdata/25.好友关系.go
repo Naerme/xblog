@@ -18,6 +18,6 @@ func main() {
 	//fmt.Println(models.CalcUserRelationship(4, 1))
 	//fmt.Println(models.CalcUserRelationship(5, 1))
 	//fmt.Println(models.CalcUserRelationship(3, 4))
-	chat_service.ToTextChat(3, 7, "你好")
-	chat_service.ToTextChat(7, 3, "在干嘛")
+	chat_service.ToTextChat(3, 6, "你1好")
+	chat_service.ToTextChat(6, 3, "在1干嘛")
 }
