@@ -5,8 +5,10 @@ import (
 	"blogx_server/global"
 	"blogx_server/middleware"
 	"blogx_server/models"
+	"blogx_server/models/ctype/chat_msg"
+	"blogx_server/models/enum/chat_msg_type"
 	"blogx_server/utils/jwts"
-	"fmt"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,7 +21,18 @@ func (ChatApi) ChatReadView(c *gin.Context) {
 		res.FailWithMsg("消息不存在", c)
 		return
 	}
-
+	item := ChatResponse{
+		ChatListResponse: ChatListResponse{
+			ChatModel: models.ChatModel{
+				MsgType: chat_msg_type.MsgReadType,
+				Msg: chat_msg.ChatMsg{
+					MsgReadMsg: &chat_msg.MsgReadMsg{
+						ReadChatID: chat.ID,
+					},
+				},
+			},
+		},
+	}
 	claims := jwts.GetClaims(c)
 	var chatAc models.UserChatActionModel
 	err = global.DB.Take(&chatAc, "user_id = ? and chat_id = ?", claims.UserID, cr.ID).Error
@@ -29,6 +42,7 @@ func (ChatApi) ChatReadView(c *gin.Context) {
 			ChatID: cr.ID,
 			IsRead: true,
 		})
+		res.SendWsMsg(OnlineMap, chat.SendUserID, item)
 		res.OkWithMsg("消息读取成功", c)
 		return
 	}
@@ -37,8 +51,7 @@ func (ChatApi) ChatReadView(c *gin.Context) {
 		res.FailWithMsg("消息被删除", c)
 		return
 	}
-	fmt.Println("已读取")
+	res.SendWsMsg(OnlineMap, chat.SendUserID, item)
 	global.DB.Model(&chatAc).Update("is_read", true)
-
 	res.OkWithMsg("消息读取成功", c)
 }
