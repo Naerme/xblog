@@ -2,8 +2,14 @@ package chat_api
 
 import (
 	"blogx_server/common/res"
+	"blogx_server/global"
+	"blogx_server/models"
+	"blogx_server/models/ctype/chat_msg"
+	"blogx_server/models/enum/chat_msg_type"
 	"blogx_server/utils/jwts"
+	"encoding/json"
 	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
@@ -15,6 +21,15 @@ var UP = websocket.Upgrader{
 }
 
 var OnlineMap = map[uint]map[string]*websocket.Conn{}
+
+type ChatRequest struct {
+	RevUserID uint                  `json:"revUserID"` // 发给谁
+	MsgType   chat_msg_type.MsgType `json:"msgType"`   // 1 文本 2 图片  3 md
+	Msg       chat_msg.ChatMsg      `json:"msg"`       // 消息主体
+}
+type ChatResponse struct {
+	ChatListResponse
+}
 
 func (ChatApi) ChatView(c *gin.Context) {
 	claims, err := jwts.ParseTokenByGin(c)
@@ -45,14 +60,73 @@ func (ChatApi) ChatView(c *gin.Context) {
 	fmt.Println("进入", OnlineMap)
 	for {
 		// 消息类型，消息，错误
-		t, p, err := conn.ReadMessage()
-		if err != nil {
+		_, p, err1 := conn.ReadMessage()
+		if err1 != nil {
 			// 一般是客户端断开 // websocket: close 1005 (no status)
 			fmt.Println(err)
 			break
 		}
-		conn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("你说的是：%s吗？", string(p))))
-		fmt.Println(t, string(p))
+
+		var req ChatRequest
+		err2 := json.Unmarshal(p, &req)
+
+		if err2 != nil {
+			byteData, _ := json.Marshal(res.Response{
+				Code: 1002,
+				Msg:  "格式错误",
+			})
+			conn.WriteMessage(websocket.TextMessage, byteData)
+			continue
+		}
+		// 判断接收人在不在
+		var revUser models.UserModel
+		err = global.DB.Take(&revUser, req.RevUserID).Error
+		if err != nil {
+			byteData, _ := json.Marshal(res.Response{
+				Code: 1002,
+				Msg:  "接收人不存在",
+			})
+			conn.WriteMessage(websocket.TextMessage, byteData)
+			continue
+		}
+
+		// 先落库
+
+		// 消息接收人，看看在不在线, 在线就发送给对方
+		addrMap, ok := OnlineMap[req.RevUserID]
+		if ok {
+			// 发生给对方所有在线的客户端
+			for _, w := range addrMap {
+				byteData, _ := json.Marshal(res.Response{
+					Code: 0,
+					Msg:  "成功",
+					Data: ChatResponse{
+						ChatListResponse: ChatListResponse{
+							ChatModel: models.ChatModel{
+								MsgType: req.MsgType,
+								Msg:     req.Msg,
+							},
+						},
+					},
+				})
+				w.WriteMessage(websocket.TextMessage, byteData)
+			}
+			byteData, _ := json.Marshal(res.Response{
+				Code: 0,
+				Msg:  "成功",
+				Data: ChatResponse{
+					ChatListResponse: ChatListResponse{
+						ChatModel: models.ChatModel{
+							MsgType: req.MsgType,
+							Msg:     req.Msg,
+						},
+					},
+				},
+			})
+			// 给自己也发一份
+			conn.WriteMessage(websocket.TextMessage, byteData)
+			continue
+		}
 	}
 	defer conn.Close()
 

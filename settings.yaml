@@ -44,7 +44,7 @@ river:
         tag_list: tag_list,list
   bulk_size: 128
 jwt:
-  expire: 24
+  expire: 240
   secret: xxx 
   issuer: hjy
 redis:
