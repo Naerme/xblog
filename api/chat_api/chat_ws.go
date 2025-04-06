@@ -71,62 +71,30 @@ func (ChatApi) ChatView(c *gin.Context) {
 		err2 := json.Unmarshal(p, &req)
 
 		if err2 != nil {
-			byteData, _ := json.Marshal(res.Response{
-				Code: 1002,
-				Msg:  "格式错误",
-			})
-			conn.WriteMessage(websocket.TextMessage, byteData)
+			res.SendConnFailWithMsg("参数错误", conn)
 			continue
 		}
 		// 判断接收人在不在
 		var revUser models.UserModel
 		err = global.DB.Take(&revUser, req.RevUserID).Error
 		if err != nil {
-			byteData, _ := json.Marshal(res.Response{
-				Code: 1002,
-				Msg:  "接收人不存在",
-			})
-			conn.WriteMessage(websocket.TextMessage, byteData)
+			res.SendConnFailWithMsg("接收人不存在", conn)
+
 			continue
 		}
 
 		// 先落库
-
-		// 消息接收人，看看在不在线, 在线就发送给对方
-		addrMap, ok := OnlineMap[req.RevUserID]
-		if ok {
-			// 发生给对方所有在线的客户端
-			for _, w := range addrMap {
-				byteData, _ := json.Marshal(res.Response{
-					Code: 0,
-					Msg:  "成功",
-					Data: ChatResponse{
-						ChatListResponse: ChatListResponse{
-							ChatModel: models.ChatModel{
-								MsgType: req.MsgType,
-								Msg:     req.Msg,
-							},
-						},
-					},
-				})
-				w.WriteMessage(websocket.TextMessage, byteData)
-			}
-			byteData, _ := json.Marshal(res.Response{
-				Code: 0,
-				Msg:  "成功",
-				Data: ChatResponse{
-					ChatListResponse: ChatListResponse{
-						ChatModel: models.ChatModel{
-							MsgType: req.MsgType,
-							Msg:     req.Msg,
-						},
-					},
+		item := ChatResponse{
+			ChatListResponse: ChatListResponse{
+				ChatModel: models.ChatModel{
+					MsgType: req.MsgType,
+					Msg:     req.Msg,
 				},
-			})
-			// 给自己也发一份
-			conn.WriteMessage(websocket.TextMessage, byteData)
-			continue
+			},
 		}
+		res.SendWsMsg(OnlineMap, req.RevUserID, item)
+		res.SendConnOkWithData(item, conn)
+
 	}
 	defer conn.Close()
 
