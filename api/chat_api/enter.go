@@ -8,6 +8,7 @@ import (
 	"blogx_server/models"
 	"blogx_server/models/enum"
 	"blogx_server/utils/jwts"
+	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -42,6 +43,7 @@ func (ChatApi) ChatListView(c *gin.Context) {
 	for _, model := range userChatActionList {
 		chatReadMap[model.ChatID] = true
 	}
+	fmt.Println("userChatActionList:", userChatActionList)
 	switch cr.Type {
 	case 1: // 前台用户调的
 		cr.SendUserID = claims.UserID
@@ -76,7 +78,11 @@ func (ChatApi) ChatListView(c *gin.Context) {
 	})
 
 	var list = make([]ChatListResponse, 0)
+	fmt.Println("进入循环")
 	for _, model := range _list {
+		fmt.Println("循环1")
+		fmt.Println("chatReadMap[model.ID]:", chatReadMap[model.ID])
+		fmt.Println("model.ID]:", model.ID)
 		item := ChatListResponse{
 			ChatModel:        model,
 			SendUserNickname: model.SendUserModel.Nickname,
