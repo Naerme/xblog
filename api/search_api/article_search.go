@@ -52,6 +52,55 @@ func (SearchApi) ArticleSearchView(c *gin.Context) {
 		res.FailWithMsg("搜索类型错误", c)
 		return
 	}
+
+	topArticleIDList := getAdminTopArticleIDList()
+
+	if global.ESClient == nil {
+		//服务降级，没有配置es
+		where := global.DB.Where("")
+		if cr.Tag != "" {
+			where.Where("tag_list like ?", fmt.Sprintf("%%%s%%", cr.Tag))
+		}
+		var articleTopMap = map[uint]bool{}
+		for _, u := range topArticleIDList {
+			articleTopMap[u] = true
+		}
+		sortMap = map[int8]string{
+			0: "",
+			1: "created_at desc",
+			2: "comment_count desc",
+			3: "digg_count desc",
+			4: "collect_count desc",
+		}
+		sort, _ := sortMap[cr.Type]
+		cr.Order = sort
+		_list, count, _ := common.ListQuery(models.ArticleModel{}, common.Options{
+			Preloads:     []string{"CategoryModel", "UserModel"},
+			PageInfo:     cr.PageInfo,
+			Likes:        []string{"title", "abstract"},
+			DefaultOrder: sql.ConvertSliceOrderSql(topArticleIDList),
+			Where:        where,
+		})
+
+		var list = make([]ArticleListResponse, 0)
+		for _, model := range _list {
+			item := ArticleListResponse{
+				ArticleModel: model,
+				AdminTop:     articleTopMap[model.ID],
+				UserNickname: model.UserModel.Nickname,
+				UserAvatar:   model.UserModel.Avatar,
+			}
+			if model.CategoryModel != nil {
+				item.CategoryTitle = &model.CategoryModel.Title
+			}
+
+			list = append(list, item)
+		}
+
+		res.OkWithList(list, count, c)
+		return
+	}
+
 	query := elastic.NewBoolQuery()
 	if cr.Key != "" {
 		query.Should(
@@ -71,10 +120,6 @@ func (SearchApi) ArticleSearchView(c *gin.Context) {
 	var articleIDList []uint
 
 	// 把管理员置顶的文章查出来
-	var userIDList []uint
-	var topArticleIDList []uint
-	global.DB.Model(models.UserModel{}).Where("role = ?", enum.AdminRole).Select("id").Scan(&userIDList)
-	global.DB.Model(models.UserTopArticleModel{}).Where("user_id in ?", userIDList).Select("article_id").Scan(&topArticleIDList)
 	var articleTopMap = map[uint]bool{}
 	if len(topArticleIDList) > 0 {
 		var topArticleIDListAny []interface{}
@@ -184,4 +229,11 @@ func (SearchApi) ArticleSearchView(c *gin.Context) {
 	}
 
 	res.OkWithList(list, int(count), c)
+}
+
+func getAdminTopArticleIDList() (topArticleIDList []uint) {
+	var userIDList []uint
+	global.DB.Model(models.UserModel{}).Where("role = ?", enum.AdminRole).Select("id").Scan(&userIDList)
+	global.DB.Model(models.UserTopArticleModel{}).Where("user_id in ?", userIDList).Select("article_id").Scan(&topArticleIDList)
+	return
 }

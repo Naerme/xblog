@@ -26,6 +26,7 @@ es:
   is_https:
   username:
   password:
+  enable: true
 river:
   enable: true
   server_id: 1001

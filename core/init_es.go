@@ -9,7 +9,7 @@ import (
 
 func EsConnect() *elastic.Client {
 	es := global.Conifg.ES
-	if es.Addr == "" {
+	if !es.Enable || es.Addr == "" {
 		return nil
 	}
 	client, err := elastic.NewClient(
