@@ -98,3 +98,10 @@ func (a *ArticleModel) AfterDelete(tx *gorm.DB) (err error) {
 	}
 	return nil
 }
+
+func (a *ArticleModel) AfterUpdate(tx *gorm.DB) (err error) {
+	// 正文发生了变化，才去做转换
+	a.AfterDelete(tx)
+	a.AfterCreate(tx)
+	return nil
+}

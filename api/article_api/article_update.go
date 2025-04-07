@@ -93,5 +93,10 @@ func (ArticleApi) ArticleUpdateView(c *gin.Context) {
 		return
 	}
 
+	//判断文章标题和正文有没有变化
+	if cr.Title != article.Title || cr.Content != article.Content {
+		//重新构建全文记录
+	}
+
 	res.OkWithMsg("文章更新成功", c)
 }
