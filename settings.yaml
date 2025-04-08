@@ -23,10 +23,10 @@ db:
     source: mysql
 es:
   addr: 192.168.168.128:9200
-  is_https:
-  username:
-  password:
-  enable: true
+  is_https: false
+  username: ""
+  password: ""
+  enable: false
 river:
   enable: true
   server_id: 1001
@@ -36,6 +36,7 @@ river:
     - schema: blogx
       tables:
       - article_models
+      - text_models
   rule:
     - schema: blogx
       table: article_models
@@ -43,6 +44,10 @@ river:
       type: _doc
       field:
         tag_list: tag_list,list
+    - schema: blogx
+      table: text_models
+      index: text_index
+      type: _doc
   bulk_size: 128
 jwt:
   expire: 240
@@ -105,8 +110,8 @@ qiNiu:
   size: 3
   expiry: 60
 ai:
-  enable: false
-  secretKey: ddasjhdshfdsnfdsjfioeos384u3289rh89r8932r893
+  enable: true
+  secretKey: sk-uiDWR86wvdq7t69y961IxKCRTawtatKadN197ijzuo20Me6g
   nickname: 小演
   avatar: /xxx/xxx
   abstract: ""

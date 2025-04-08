@@ -6,7 +6,7 @@ import (
 )
 
 type TextModel struct {
-	ArticleID uint   `json:"articleID"`
+	ArticleID uint   `json:"article_id"`
 	Head      string `json:"head"`
 	Body      string `json:"body"`
 }
@@ -35,6 +35,9 @@ func MdContentTransformation(id uint, title string, content string) (list []Text
 	}
 	if body != "" {
 		bodyList = append(bodyList, getBody(body))
+	}
+	if len(headList) > len(bodyList) {
+		bodyList = append(bodyList, "")
 	}
 
 	if len(headList) != len(bodyList) {

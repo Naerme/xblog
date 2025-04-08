@@ -50,3 +50,11 @@ db1:
   db: blogx
   debug: false
   source: mysql
+
+
+
+  sk-uiDWR86wvdq7t69y961IxKCRTawtatKadN197ijzuo20Me6g
+
+  授权成功
+  您的免费API Key为: sk-uiDWR86wvdq7t69y961IxKCRTawtatKadN197ijzuo20Me6g
+  请妥善保管，不要泄露给他人，如泄漏造成滥用可能会导致Key被封禁

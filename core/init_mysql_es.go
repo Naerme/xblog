@@ -8,6 +8,10 @@ import (
 
 func InitMysqlES() {
 	if !global.Conifg.River.Enable {
+		logrus.Infof("关闭musql同步操作")
+		return
+	}
+	if !global.Conifg.ES.Enable {
 		logrus.Infof("未配置es，关闭musql同步操作")
 		return
 	}
