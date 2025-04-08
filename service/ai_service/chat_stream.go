@@ -2,6 +2,7 @@ package ai_service
 
 import (
 	"bufio"
+	_ "embed"
 	"encoding/json"
 	"github.com/sirupsen/logrus"
 )
@@ -24,6 +25,9 @@ type StreamData struct {
 	SystemFingerprint interface{} `json:"system_fingerprint"`
 }
 
+//go:embed chat_stream.prompt
+var chatStreamPrompt string
+
 func ChatStream(content string) (msgChan chan string, err error) {
 	msgChan = make(chan string)
 	r := Request{
@@ -31,7 +35,7 @@ func ChatStream(content string) (msgChan chan string, err error) {
 		Messages: []Message{
 			{
 				Role:    "system",
-				Content: "你是一个叫枫枫知道的人工智能助手",
+				Content: chatStreamPrompt,
 			},
 			{
 				Role:    "user",

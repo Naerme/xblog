@@ -23,10 +23,10 @@ db:
     source: mysql
 es:
   addr: 192.168.168.128:9200
-  is_https: false
+  is_https:
   username: ""
   password: ""
-  enable: false
+  enable: true
 river:
   enable: true
   server_id: 1001
