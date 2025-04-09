@@ -10,6 +10,7 @@ import (
 func EsConnect() *elastic.Client {
 	es := global.Conifg.ES
 	if !es.Enable || es.Addr == "" {
+		logrus.Infof("未启用es连接")
 		return nil
 	}
 	client, err := elastic.NewClient(
