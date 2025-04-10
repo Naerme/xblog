@@ -13,3 +13,6 @@ func GetFlow() int {
 	v, _ := global.Redis.Get(key).Int()
 	return v
 }
+func ClearFlow() {
+	global.Redis.Del(key)
+}

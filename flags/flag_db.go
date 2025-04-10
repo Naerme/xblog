@@ -34,6 +34,7 @@ func FlagDB() {
 		&models.ChatModel{},                   // 对话表
 		&models.UserChatActionModel{},         // 用户操作对话表，读取，删除
 		&models.TextModel{},                   // 全文搜索表
+		&models.SiteFlowModel{},               // 网站流量表
 
 	)
 	if err != nil {

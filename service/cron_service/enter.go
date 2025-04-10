@@ -12,6 +12,7 @@ func Cron() {
 	// 每天2点去同步文章数据
 	crontab.AddFunc("0 0 2 * * *", SyncArticle)
 	crontab.AddFunc("0 0 3 * * *", SyncComment)
+	crontab.AddFunc("0 59 23 * * *", SyncSiteFlow)
 
 	crontab.Start()
 }
