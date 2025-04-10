@@ -6,6 +6,7 @@ import (
 	"blogx_server/core"
 	"blogx_server/global"
 	"blogx_server/middleware"
+	"blogx_server/service/redis_service/redis_site"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gin-gonic/gin"
@@ -39,6 +40,7 @@ func (SiteApi) SiteInfoView(c *gin.Context) {
 
 	if cr.Name == "site" {
 		global.Conifg.Site.About.Version = global.Version
+		redis_site.SetFlow()
 		res.OkWithData(SiteInfoResponse{
 			Site: global.Conifg.Site,
 			QiNiu: QiNiu{
