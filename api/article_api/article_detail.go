@@ -33,7 +33,7 @@ func (ArticleApi) ArticleDetailView(c *gin.Context) {
 	// 管理员，能看到全部的文章
 	var article models.ArticleModel
 	//err := global.DB.Preload("UserModel").Preload("CategoryModel").Take(&article, cr.ID).Error
-	err := global.DB.Preload("UserModel").Take(&article, cr.ID).Error
+	err := global.DB.Preload("UserModel").Preload("CategoryModel").Take(&article, cr.ID).Error
 	if err != nil {
 		//fmt.Println(err)
 		//fmt.Println()
@@ -92,18 +92,15 @@ func (ArticleApi) ArticleDetailView(c *gin.Context) {
 	article.CollectCount = article.CollectCount + collectCount
 	article.LookCount = article.LookCount + lookCount
 	article.CommentCount = article.CommentCount + commentCount
-	//
-	//if article.CategoryModel != nil {
-	//	data.CategoryTitle = &article.CategoryModel.Title
-	//}
-	//res.OkWithData(data, c)
-	res.OkWithData(ArticleDetailResponse{
+	data := ArticleDetailResponse{
 		ArticleModel: article,
 		Username:     article.UserModel.Username,
 		Nickname:     article.UserModel.Nickname,
 		UserAvatar:   article.UserModel.Avatar,
-		//CategoryTitle: nil,
-		//IsDigg:        false,
-		//IsCollect:     false,
-	}, c)
+	}
+	if article.CategoryModel != nil {
+		data.CategoryTitle = &article.CategoryModel.Title
+	}
+	res.OkWithData(data, c)
+
 }
