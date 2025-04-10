@@ -24,6 +24,8 @@ type UserModel struct {
 	//UserConfModel  *UserConfModel          `gorm:"foreignKey:UserID" json:"-"`
 	//CodeAge        int                     `json:"codeAge"`
 	//LikeTags       []string `gorm:"type:longtext;serializer:json" json:"likeTags"` //兴趣标签
+	ArticleList []ArticleModel   `gorm:"foreignKey:UserID" json:"-"`
+	LoginList   []UserLoginModel `gorm:"foreignKey:UserID" json:"-"`
 }
 
 type UserConfModel struct {

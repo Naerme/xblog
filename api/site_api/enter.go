@@ -21,6 +21,14 @@ type SiteInfoRequset struct {
 	Name string `uri:"name"`
 }
 
+type QiNiu struct {
+	Enable bool `json:"enable"`
+}
+type SiteInfoResponse struct {
+	QiNiu QiNiu `json:"qiNiu"`
+	conf.Site
+}
+
 func (SiteApi) SiteInfoView(c *gin.Context) {
 	var cr SiteInfoRequset
 	err := c.ShouldBindUri(&cr)
@@ -31,7 +39,12 @@ func (SiteApi) SiteInfoView(c *gin.Context) {
 
 	if cr.Name == "site" {
 		global.Conifg.Site.About.Version = global.Version
-		res.OkWithData(global.Conifg.Site, c)
+		res.OkWithData(SiteInfoResponse{
+			Site: global.Conifg.Site,
+			QiNiu: QiNiu{
+				Enable: global.Conifg.QiNiu.Enable,
+			},
+		}, c)
 	}
 	//判断是不是管理员
 	middleware.AdminMiddleware(c)
@@ -84,6 +97,22 @@ func (SiteApi) SiteInfoView(c *gin.Context) {
 
 func (SiteApi) SiteInfoQQView(c *gin.Context) {
 	res.OkWithData(global.Conifg.QQ.Url(), c)
+}
+
+type AiResponse struct {
+	Enable   bool   `json:"enable"`
+	Nickname string `json:"nickname"`
+	Avatar   string `json:"avatar"`
+	Abstract string `json:"abstract"`
+}
+
+func (SiteApi) SiteInfoAiView(c *gin.Context) {
+	res.OkWithData(AiResponse{
+		Enable:   global.Conifg.Ai.Enable,
+		Nickname: global.Conifg.Ai.Nickname,
+		Avatar:   global.Conifg.Ai.Avatar,
+		Abstract: global.Conifg.Ai.Abstract,
+	}, c)
 }
 
 type SiteUpdateRequest struct {
@@ -188,6 +217,7 @@ func (SiteApi) SiteUpdateView(c *gin.Context) {
 	res.OkWithMsg("更新站点配置成功", c)
 	return
 }
+
 func UpdateSite(site conf.Site) error {
 	if site.Project.Icon == "" && site.Project.Title == "" &&
 		site.Seo.Keywords == "" && site.Seo.Description == "" &&

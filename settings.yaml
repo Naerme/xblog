@@ -114,7 +114,7 @@ ai:
   secretKey: sk-uiDWR86wvdq7t69y961IxKCRTawtatKadN197ijzuo20Me6g
   nickname: 小演
   avatar: /xxx/xxx
-  abstract: ""
+  abstract: Hello，我是你的AI小管家,你可以叫我小枫,我可以根据你的描述在全站文章中去找到你所喜欢的文章,赶紧来试试吧！
 upload:
   size: 3
   whiteList:
