@@ -102,24 +102,6 @@ func (ArticleApi) ArticleListView(c *gin.Context) {
 		}
 	}
 
-	//query := global.DB.Where("")
-	//
-	//if cr.CollectID != 0 {
-	//	var articleIDList []uint
-	//	if cr.CollectID != -1 {
-	//		global.DB.Model(models.UserArticleCollectModel{}).Where("collect_id = ?", cr.CollectID).Select("article_id").Scan(&articleIDList)
-	//	} else {
-	//		// 查这个人的所有收藏夹id
-	//		if cr.UserID == 0 {
-	//			res.FailWithMsg("查所有的收藏文章，需要传用户id", c)
-	//			return
-	//		}
-	//		global.DB.Model(models.UserArticleCollectModel{}).Where("user_id = ?", cr.UserID).Select("article_id").Scan(&articleIDList)
-	//	}
-	//
-	//	query.Where("id in ?", articleIDList)
-	//}
-	//
 	if cr.Order != "" {
 		_, ok := orderColumnMap[cr.Order]
 		if !ok {
@@ -143,21 +125,7 @@ func (ArticleApi) ArticleListView(c *gin.Context) {
 			userTopMap[i2.ArticleID] = true
 		}
 	}
-	//var userTopQuery = global.DB.Where("")
-	//if cr.UserID != 0 {
-	//	userTopQuery.Where("user_id = ?", cr.UserID)
-	//}
-	//var userTopArticleList []models.UserTopArticleModel
-	//global.DB.Preload("UserModel").Order("created_at desc").Where(userTopQuery).Find(&userTopArticleList)
-	//
-	//for _, i2 := range userTopArticleList {
-	//	topArticleIDList = append(topArticleIDList, i2.ArticleID)
-	//	if i2.UserModel.Role == enum.AdminRole {
-	//		adminTopMap[i2.ArticleID] = true
-	//	}
-	//	userTopMap[i2.ArticleID] = true
-	//}
-	//
+
 	var options = common.Options{
 		Likes:        []string{"title"},
 		PageInfo:     cr.PageInfo,
@@ -173,17 +141,6 @@ func (ArticleApi) ArticleListView(c *gin.Context) {
 		CategoryID: cr.CategoryID,
 		Status:     cr.Status,
 	}, options)
-	//_list, count, _ := common.ListQuery(models.ArticleModel{
-	//	UserID:     cr.UserID,
-	//	CategoryID: cr.CategoryID,
-	//	Status:     cr.Status,
-	//}, common.Options{
-	//	Likes:        []string{"title"},
-	//	PageInfo:     cr.PageInfo,
-	//	DefaultOrder: fmt.Sprintf("%s, created_at desc", sql.ConvertSliceOrderSql(topArticleIDList)),
-	//	//Where:        query,
-	//	//Preloads:     []string{"CategoryModel", "UserModel"},
-	//})
 
 	var list = make([]ArticleListResponse, 0)
 	collectMap := redis_article.GetAllCacheCollect()
@@ -211,32 +168,6 @@ func (ArticleApi) ArticleListView(c *gin.Context) {
 		list = append(list, data)
 
 	}
-	//for _, model := range _list {
-	//	model.Content = ""
-	//
-	//	list = append(list, ArticleListResponse{
-	//		ArticleModel: model,
-	//		UserTop:      userTopMap[model.ID],
-	//		AdminTop:     adminTopMap[model.ID],
-	//		//UserNickname: model.UserModel.Nickname,
-	//		//UserAvatar:   model.UserModel.Avatar,
-	//	})
-	//}
-
-	//data := ArticleListResponse{
-	//	ArticleModel: model,
-	//	UserTop:      userTopMap[model.ID],
-	//	AdminTop:     adminTopMap[model.ID],
-	//	UserNickname: model.UserModel.Nickname,
-	//	UserAvatar:   model.UserModel.Avatar,
-
-	//
-	//	if model.CategoryModel != nil {
-	//		data.CategoryTitle = &model.CategoryModel.Title
-	//	}
-	//
-	//	list = append(list, data)
-	//}
 
 	res.OkWithList(list, count, c)
 }
